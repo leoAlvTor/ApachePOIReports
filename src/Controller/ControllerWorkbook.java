@@ -9,12 +9,10 @@ import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 
-public class CreateFile {
-    public CreateFile(){}
+public class ControllerWorkbook {
+    public ControllerWorkbook(){}
 
     /**
      * Create a new Excel document with one sheet on it.
@@ -117,6 +115,35 @@ public class CreateFile {
             printCellData(cells);
         }
 
+    }
+
+    public boolean writeData(String filePath, Object[][] dataObjects, XSSFWorkbook workbook, XSSFSheet sheet){
+        int rowCount = 0;
+        for(Object[]  data: dataObjects){
+            Row row = sheet.createRow(++rowCount);
+            int columnCount = 0;
+
+            for(Object field : data){
+                Cell cell = row.createCell(++columnCount);
+                if(field instanceof String)
+                    cell.setCellValue((String) field);
+                else if(field instanceof Integer)
+                    cell.setCellValue((Integer) field);
+                else if(field instanceof Double)
+                    cell.setCellValue((Double) field);
+            }
+        }
+        try{
+            FileOutputStream outputStream = new FileOutputStream(filePath);
+            workbook.write(outputStream);
+            return true;
+        }catch (FileNotFoundException fileNotFoundException){
+            System.out.println("File not found in the specified path: " + filePath);
+            return false;
+        }catch (IOException ioException){
+            System.out.println("Error while writing file!");
+            return false;
+        }
     }
 
 }
