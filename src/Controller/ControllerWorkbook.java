@@ -1,12 +1,8 @@
 package Controller;
 
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.xssf.usermodel.XSSFSheet;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.xssf.usermodel.*;
 
 import java.io.*;
 import java.util.*;
@@ -45,6 +41,7 @@ public class ControllerWorkbook {
             return false;
         }
     }
+
 
     public XSSFWorkbook readFile(String filePath){
         // Creating an instance of the file by it's name.
@@ -114,14 +111,37 @@ public class ControllerWorkbook {
             List<Cell> cells = readCells(rows);
             printCellData(cells);
         }
-
     }
 
-    public boolean writeData(String filePath, Object[][] dataObjects, XSSFWorkbook workbook, XSSFSheet sheet){
-        int rowCount = 0;
-        for(Object[]  data: dataObjects){
+    public boolean writeColumnTitleWithStyle(Object[] titles, XSSFWorkbook workbook, int sheet){
+        XSSFFont font = workbook.createFont();
+        font.setFontHeightInPoints((short) 15);
+        font.setBold(true);
+
+        XSSFCellStyle style = workbook.createCellStyle();
+        style.setFont(font);
+        style.setBorderTop(BorderStyle.THIN);
+        style.setBorderLeft(BorderStyle.THIN);
+        style.setBorderRight(BorderStyle.THIN);
+        style.setBorderBottom(BorderStyle.THIN);
+
+        style.setFillForegroundColor(new XSSFColor(new java.awt.Color(75, 172, 198)));
+
+        XSSFSheet xssfSheet = workbook.getSheetAt(sheet);
+        xssfSheet.getRow(0).getCell(0).setCellStyle(style);
+
+        for (int i = 0; i < titles.length; i++) {
+            xssfSheet.getRow(0).getCell(i).setCellStyle(style);
+            xssfSheet.getRow(0).getCell(i).setCellValue((String)titles[i]);
+        }
+        return true;
+    }
+
+    public boolean writeData(String filePath, List<List<Object>> dataObjects, XSSFWorkbook workbook, XSSFSheet sheet){
+        int rowCount = 2;
+        for(List<Object>  data: dataObjects){
             Row row = sheet.createRow(++rowCount);
-            int columnCount = 0;
+            int columnCount = -1;
 
             for(Object field : data){
                 Cell cell = row.createCell(++columnCount);
